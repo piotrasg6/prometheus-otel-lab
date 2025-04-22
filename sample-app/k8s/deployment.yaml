@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sample-batch-app
+  namespace: monitoring
+  labels:
+    app: sample-batch-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sample-batch-app
+  template:
+    metadata:
+      labels:
+        app: sample-batch-app
+    spec:
+      containers:
+      - name: metric-pusher
+        image: ${YOUR_REGISTRY}/sample-batch-app:latest  # Replace with your image
+        imagePullPolicy: Always
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        envFrom:
+        - configMapRef:
+            name: sample-app-config
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "200m"
+            memory: "256Mi"
+        livenessProbe:
+          exec:
+            command:
+            - pgrep
+            - python3
+          initialDelaySeconds: 5
+          periodSeconds: 10

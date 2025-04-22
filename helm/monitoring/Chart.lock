@@ -1,0 +1,15 @@
+dependencies:
+- name: prometheus-pushgateway
+  repository: https://prometheus-community.github.io/helm-charts
+  version: 1.5.1
+- name: opentelemetry-collector
+  repository: https://open-telemetry.github.io/opentelemetry-helm-charts
+  version: 0.43.1
+- name: prometheus
+  repository: https://prometheus-community.github.io/helm-charts
+  version: 15.10.1
+- name: grafana
+  repository: https://grafana.github.io/helm-charts
+  version: 6.32.2
+digest: sha256:efee3949508b6c56f832773731c1d9177b65e0e7595b1264099e250864dd3578
+generated: "2025-04-22T20:17:16.958326426+02:00"

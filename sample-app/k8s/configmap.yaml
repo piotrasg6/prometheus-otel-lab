@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sample-app-config
+  namespace: monitoring
+data:
+  PUSH_GATEWAY_URL: "prometheus-pushgateway.monitoring.svc.cluster.local:9091"
+  PUSH_INTERVAL: "15"
+  APP_NAME: "sample-batch-app"
+  JOB_MODE: "both"
+  METRICS_PREFIX: "k8s_batch_app"

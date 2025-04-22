@@ -1,0 +1,97 @@
+mode: "deployment"
+
+nameOverride: "otel-collector"
+fullnameOverride: "otel-collector"
+
+# Configure the OpenTelemetry Collector
+config:
+  receivers:
+    prometheus:
+      config:
+        scrape_configs:
+          # Scrape the Push Gateway
+          - job_name: 'pushgateway'
+            scrape_interval: 10s
+            honor_labels: true  # Important: preserve original job labels
+            static_configs:
+              - targets: ['prometheus-pushgateway.monitoring.svc.cluster.local:9091']
+
+    # Also include OTLP receiver
+    otlp:
+      protocols:
+        grpc:
+          endpoint: 0.0.0.0:4317
+        http:
+          endpoint: 0.0.0.0:4318
+
+  processors:
+    batch:
+      timeout: 10s
+      send_batch_size: 1000
+
+    # Memory limiter to prevent OOM
+    memory_limiter:
+      check_interval: 1s
+      limit_mib: 800
+      spike_limit_mib: 200
+
+    # Add resource attributes
+    resource:
+      attributes:
+        - key: service.name
+          value: "otel-collector"
+          action: upsert
+        - key: deployment.environment
+          value: "lab-environment"
+          action: upsert
+
+  exporters:
+    # Export to Prometheus
+    prometheus:
+      endpoint: 0.0.0.0:8889
+      namespace: "otel"
+      send_timestamps: true
+
+    # Debug logging
+    logging:
+      verbosity: detailed
+
+  service:
+    pipelines:
+      metrics:
+        receivers: [prometheus, otlp]
+        processors: [memory_limiter, batch, resource]
+        exporters: [prometheus, logging]
+
+# Configure resource limits and requests
+resources:
+  limits:
+    cpu: 1
+    memory: 2Gi
+  requests:
+    cpu: 200m
+    memory: 400Mi
+
+# Configure ports for the OpenTelemetry Collector
+ports:
+  metrics:
+    enabled: true
+    containerPort: 8889
+    servicePort: 8889
+    protocol: TCP
+  otlp:
+    enabled: true
+    containerPort: 4317
+    servicePort: 4317
+    protocol: TCP
+  otlp-http:
+    enabled: true
+    containerPort: 4318
+    servicePort: 4318
+    protocol: TCP
+
+# Create a service monitor for Prometheus to scrape the collector
+serviceMonitor:
+  enabled: true
+  namespace: monitoring
+  interval: 10s

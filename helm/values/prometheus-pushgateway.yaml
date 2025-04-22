@@ -1,0 +1,34 @@
+# helm/values/prometheus-pushgateway.yaml
+# Values for prometheus-pushgateway Helm chart
+# Source: https://github.com/prometheus-community/helm-charts/tree/main/charts/prometheus-pushgateway
+
+replicaCount: 1
+
+service:
+  type: ClusterIP
+  port: 9091
+
+# Allow persistence for pushed metrics
+persistentVolume:
+  enabled: true
+  size: 2Gi
+
+# Configure resource limits and requests
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+# Configure appropriate security context
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 65534
+
+# Enable metrics for scraping the Push Gateway itself
+serviceMonitor:
+  enabled: true
+  namespace: monitoring
+  interval: 10s

@@ -1,0 +1,39 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: sample-batch-job
+  namespace: monitoring
+spec:
+  schedule: "*/5 * * * *"  # Run every 5 minutes
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: sample-batch-job
+        spec:
+          containers:
+          - name: batch-job
+            image: ${YOUR_REGISTRY}/sample-batch-app:latest  # Replace with your image
+            imagePullPolicy: Always
+            env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: PUSH_GATEWAY_URL
+              value: "prometheus-pushgateway.monitoring.svc.cluster.local:9091"
+            - name: JOB_MODE
+              value: "batch"
+            resources:
+              requests:
+                cpu: "100m"
+                memory: "128Mi"
+              limits:
+                cpu: "200m"
+                memory: "256Mi"
+          restartPolicy: OnFailure

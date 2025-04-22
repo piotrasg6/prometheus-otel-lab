@@ -1,0 +1,26 @@
+# helm/monitoring/values.yaml
+# Default values for the prometheus-otel-stack chart
+
+# Global values
+global:
+  namespace: monitoring
+
+# Prometheus Push Gateway configuration
+prometheus-pushgateway:
+  enabled: true
+  # Values will be overridden from ../values/prometheus-pushgateway.yaml
+
+# OpenTelemetry Collector configuration
+opentelemetry-collector:
+  enabled: true
+  # Values will be overridden from ../values/opentelemetry-collector.yaml
+
+# Prometheus configuration
+prometheus:
+  enabled: true
+  # Values will be overridden from ../values/prometheus.yaml
+
+# Grafana configuration
+grafana:
+  enabled: true
+  # Values will be overridden from ../values/grafana.yaml

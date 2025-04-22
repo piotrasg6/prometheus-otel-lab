@@ -1,0 +1,44 @@
+# helm/values/prometheus.yaml
+# Values for prometheus Helm chart
+# Source: https://github.com/prometheus-community/helm-charts/tree/main/charts/prometheus
+
+server:
+  enabled: true
+  retention: 15d
+
+  # Create PVC for data
+  persistentVolume:
+    enabled: true
+    size: 8Gi
+
+  # Configure resource limits and requests
+  resources:
+    limits:
+      cpu: 1
+      memory: 2Gi
+    requests:
+      cpu: 500m
+      memory: 1Gi
+
+  # Add additional scrape configurations
+  extraScrapeConfigs: |
+    - job_name: 'otel-collector'
+      scrape_interval: 10s
+      static_configs:
+        - targets: ['otel-collector.monitoring.svc.cluster.local:8889']
+
+# Disable Alertmanager for this lab
+alertmanager:
+  enabled: false
+
+# Disable Prometheus Push Gateway (we'll deploy it separately)
+pushgateway:
+  enabled: false
+
+# Configure Prometheus Node Exporter
+nodeExporter:
+  enabled: true
+
+# Configure Prometheus Service Monitor
+serviceMonitorSelectorNilUsesHelmValues: false
+serviceMonitorSelector: {}
